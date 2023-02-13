@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  api:
+    container_name: factorialbackend
+    image: factorialbackend
+    ports: 
+      - 5001:80
+    build:
+      context: ./backend/backend
+      dockerfile: Dockerfile
+  frontend:
+    container_name: factorialfrontend
+    image: factorialfrontend
+    ports: 
+      - 3000:80
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/posetgressql/data
+volumes:
+  db:
+    driver: local
