@@ -80,6 +80,11 @@ namespace backend.Controllers
             {
                 return BadRequest();
             }
+            var checkEmail = await _context.Contacts.AnyAsync(x => x.Email == contact.Email);
+            if(checkEmail)
+            {
+                return Conflict("Email already exists");
+            }
             _context.Contacts.Add(contact);
             await _context.SaveChangesAsync();
             return Ok(contact);
@@ -98,6 +103,14 @@ namespace backend.Controllers
             if (dbContact is null)
             {
                 return BadRequest();
+            }
+            var emailCheck = await _context.Contacts.FirstOrDefaultAsync(x => x.Email == contact.Email);
+            if(emailCheck != null)
+            {
+                if(emailCheck.Id != contact.Id)
+                {
+                    return Conflict("Email already exists");
+                }
             }
             dbContact.FirstName = contact.FirstName;
             dbContact.LastName = contact.LastName;

@@ -199,6 +199,11 @@ const App = () => {
         setAllContacts([...allContacts, res?.data]);
         setContactList([...contactList, res?.data]);
       }
+      else if(res.status === 409) {
+        message.warning("Email already exists");
+      }
+    }).catch(err => {
+      message.warning(err?.response?.data);
     });
   }
 
@@ -219,7 +224,9 @@ const App = () => {
           return contact;
         }));
       }
-    });
+    }).catch(err => {
+      message.warning(err?.response?.data);
+    });;
   }
 
 
