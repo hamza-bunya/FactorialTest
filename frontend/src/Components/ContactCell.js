@@ -63,7 +63,7 @@ const ContactCell = ({contact, addFavourite, selectContact, selectedContacts, de
             </Dropdown>
           </div>
         </div>
-        <EditForm showModal={showEditModal} submitContact={submitEdit} contact={contact} onCancel={()=>{setShowEditModal(false)}} />
+        {showEditModal && <EditForm showModal={showEditModal} submitContact={submitEdit} contact={contact} onCancel={()=>{setShowEditModal(false)}} />}
         {showHistory && <RevisionHistory open={showHistory} onClose={()=>{setShowHistory(false)}} id={contact.id} />}
       </div>
     )

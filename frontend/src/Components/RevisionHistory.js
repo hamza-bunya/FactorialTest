@@ -1,5 +1,5 @@
 import { Modal, Timeline } from "antd";
-import axios from "axios";
+import axios from "../utils/api";
 import React, { useEffect, useState } from "react";
 import moment from "moment";
 
@@ -7,7 +7,7 @@ const RevisionHistory = ({ open, onClose, id }) => {
   const [history, setHistory] = useState([]);
   useEffect(() => {
     axios
-      .get(`http://localhost:5001/audit/GetRevisionHistory/${id}`)
+      .get(`/audit/GetRevisionHistory/${id}`)
       .then((res) => {
         console.log(res.data);
         sanitizeData(res.data);

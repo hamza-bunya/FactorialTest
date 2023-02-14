@@ -1,5 +1,4 @@
-import "./App.css";
-import axios from "axios";
+import axios from "./utils/api";
 import { useEffect, useState } from "react";
 import { Button, Checkbox, Drawer, message } from "antd";
 import {PlusOutlined, UnorderedListOutlined, StarFilled, ContainerOutlined, DeleteOutlined} from '@ant-design/icons';
@@ -10,16 +9,22 @@ import EditForm from "./Components/EditForm";
 
 const App = () => {
 
+  // Page States
+  // ---------------------------------------------------------------------- //
+  
+  // List of all unfiltered contacts received from the server
   const [allContacts, setAllContacts] = useState([]);
+  // List of filtered contacts to be displayed on the page
   const [contactList, setContactList] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [selectedSection, setSelectedSection] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  // ---------------------------------------------------------------------- //
 
+  // Fetch all contacts
   useEffect(()=>{
-    axios.get('http://localhost:5001/contacts').then(res => {
+    axios.get('/contacts').then(res => {
       if(res.data) {
         setAllContacts(res.data);
         setContactList(res.data);
@@ -27,10 +32,12 @@ const App = () => {
     });
   }, []);
 
+  // We need to refilter contacts if the contact section, search query or the contact list is changed
   useEffect(() => {
     filterContacts();
   },[selectedSection, searchQuery, allContacts]);
 
+  // Contact section menu items for the left nav
   const filterOptions = [
     {
       id: 1,
@@ -44,6 +51,7 @@ const App = () => {
     },
   ];
 
+  // Change the selected contact section
   const selectSection = (option) => {
     if (option.id === selectedSection) {
       return;
@@ -64,6 +72,7 @@ const App = () => {
     }
   }
 
+  // Render the left side nav
   const ContactSideBar = () => {
     return (
       <div className="gx-module-side">
@@ -101,6 +110,7 @@ const App = () => {
     );
   };
 
+  // Event handler for search input
   const handleSearchChange = (evt) => {
     setSearchQuery(evt.target.value);
   }
@@ -129,7 +139,7 @@ const App = () => {
   }
 
   const addFavourite = (data) => {
-    axios.patch(`http://localhost:5001/contacts/starcontact/${data.id}`).then(res => {
+    axios.patch(`/contacts/starcontact/${data.id}`).then(res => {
       if(res.status === 200) {
         message.success(res?.data?.starred ? "Contact added to favourites" : "Contact removed from favourites");
         // Get new list
@@ -147,6 +157,7 @@ const App = () => {
     })
   }
 
+  // Add or remove contact from the selected contacts list
   const selectContact = (id, isSelected) => {
     if(isSelected) {
       setSelectedContacts([...selectedContacts, id]);
@@ -169,21 +180,21 @@ const App = () => {
   }
 
   const deleteSelectedContacts = () => {
-    console.log(selectedContacts)
     let query = [];
     selectedContacts.forEach((id) => {
       query.push(`ids=${id}`);
     });
-   axios.delete(`http://localhost:5001/contacts/deletemultiple?${query.join('&')}`).then(res => {
+   axios.delete(`/contacts/deletemultiple?${query.join('&')}`).then(res => {
     if(res.status === 200) {
       message.success("Selected contacts deleted!");
       setAllContacts(res.data);
+      setSelectedContacts([]);
     }
    })
   }
 
   const deleteContact = (id) => {
-    axios.delete(`http://localhost:5001/contacts/DeleteContact/${id}`).then(res => {
+    axios.delete(`/contacts/DeleteContact/${id}`).then(res => {
       if (res.status === 200) {
         message.success("Contact deleted!");
         setAllContacts(allContacts.filter((contact) => contact.id !== id));
@@ -192,8 +203,9 @@ const App = () => {
     })
   }
 
+  // Handle add new contact submission
   const submitContact = (values) => {
-    axios.post('http://localhost:5001/contacts', values).then(res => {
+    axios.post('/contacts', values).then(res => {
       if(res.status === 200) {
         message.success("New contact added!");
         setAllContacts([...allContacts, res?.data]);
@@ -202,13 +214,12 @@ const App = () => {
       else if(res.status === 409) {
         message.warning("Email already exists");
       }
-    }).catch(err => {
-      message.warning(err?.response?.data);
     });
   }
 
+  // Handle edit contact submission
   const submitEdit = (values) => {
-    axios.put(`http://localhost:5001/contacts/editcontact/${values.id}`, values).then(res => {
+    axios.put(`/contacts/editcontact/${values.id}`, values).then(res => {
       if(res.status === 200) {
         message.success("Contact updated!");
         setAllContacts(allContacts.map((contact) => {
@@ -224,9 +235,7 @@ const App = () => {
           return contact;
         }));
       }
-    }).catch(err => {
-      message.warning(err?.response?.data);
-    });;
+    });
   }
 
 
